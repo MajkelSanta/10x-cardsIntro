@@ -314,27 +314,27 @@ NFR wymaga "ciągłego widocznego postępu" dla operacji przekraczających 2 sek
 
 #### Automated
 
-- [x] 1.1 Migracja aplikuje się bez błędów: `npx supabase db push`
-- [x] 1.2 TypeScript kompiluje się: `npm run build`
+- [x] 1.1 Migracja aplikuje się bez błędów: `npx supabase db push` — 1698388
+- [x] 1.2 TypeScript kompiluje się: `npm run build` — 1698388
 
 #### Manual
 
-- [x] 1.3 Tabela `flashcards` widoczna w Supabase Studio z wszystkimi kolumnami
-- [x] 1.4 RLS włączone i cztery polityki RLS obecne
+- [x] 1.3 Tabela `flashcards` widoczna w Supabase Studio z wszystkimi kolumnami — 1698388
+- [x] 1.4 RLS włączone i cztery polityki RLS obecne — 1698388
 
 ### Phase 2: OpenRouter Streaming API Endpoint
 
 #### Automated
 
-- [ ] 2.1 `npm run build` kończy się sukcesem
-- [ ] 2.2 `npm run lint` przechodzi bez błędów
+- [x] 2.1 `npm run build` kończy się sukcesem
+- [x] 2.2 `npm run lint` przechodzi bez błędów
 
 #### Manual
 
-- [ ] 2.3 Streaming POST do `/api/cards/generate` zwraca fiszki jako NDJSON
-- [ ] 2.4 Niezalogowany POST zwraca 401
-- [ ] 2.5 POST z tekstem < 50 znaków zwraca 400
-- [ ] 2.6 POST z tekstem > 5000 znaków zwraca 400
+- [x] 2.3 Streaming POST do `/api/cards/generate` zwraca fiszki jako NDJSON
+- [x] 2.4 Niezalogowany POST zwraca 401
+- [x] 2.5 POST z tekstem < 50 znaków zwraca 400
+- [x] 2.6 POST z tekstem > 5000 znaków zwraca 400
 
 ### Phase 3: Generation Page UI
 
