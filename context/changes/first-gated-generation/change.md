@@ -1,9 +1,9 @@
 ---
 change_id: first-gated-generation
 title: User pastes text, triggers AI generation, sees draft candidate cards
-status: implementing
+status: implemented
 created: 2026-09-06
-updated: 2026-09-08
+updated: 2026-09-09
 archived_at: null
 ---
 

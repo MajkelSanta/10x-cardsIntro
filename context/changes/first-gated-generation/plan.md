@@ -340,12 +340,12 @@ NFR wymaga "ciągłego widocznego postępu" dla operacji przekraczających 2 sek
 
 #### Automated
 
-- [x] 3.1 `npm run build` kończy się sukcesem
-- [x] 3.2 `npm run lint` przechodzi bez błędów
+- [x] 3.1 `npm run build` kończy się sukcesem — 39633fe
+- [x] 3.2 `npm run lint` przechodzi bez błędów — 39633fe
 
 #### Manual
 
-- [x] 3.3 Dashboard pokazuje link "Generuj fiszki"
-- [x] 3.4 Nawigacja do `/generate`, wklejenie tekstu → 10 fiszek strumieniuje stopniowo
-- [x] 3.5 Walidacja znaków działa (< 50 zablokowane, > 5000 zablokowane)
-- [x] 3.6 Wylogowany → `/generate` przekierowuje do `/auth/signin`
+- [x] 3.3 Dashboard pokazuje link "Generuj fiszki" — 39633fe
+- [x] 3.4 Nawigacja do `/generate`, wklejenie tekstu → 10 fiszek strumieniuje stopniowo — 39633fe
+- [x] 3.5 Walidacja znaków działa (< 50 zablokowane, > 5000 zablokowane) — 39633fe
+- [x] 3.6 Wylogowany → `/generate` przekierowuje do `/auth/signin` — 39633fe
