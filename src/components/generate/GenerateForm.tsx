@@ -4,17 +4,65 @@ import { Button } from "@/components/ui/button";
 import { ServerError } from "@/components/auth/ServerError";
 import type { DraftCard } from "@/types";
 
+type CardStatus = "pending" | "accepted" | "editing" | "rejected";
+
+interface CardReview {
+  front: string;
+  back: string;
+  status: CardStatus;
+  editFront: string;
+  editBack: string;
+}
+
 export function GenerateForm() {
   const [text, setText] = useState("");
-  const [cards, setCards] = useState<DraftCard[]>([]);
+  const [reviews, setReviews] = useState<CardReview[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  const updateReview = (index: number, patch: Partial<CardReview>) => {
+    setReviews((prev) => prev.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const payload = reviews
+        .filter((r) => r.status === "accepted")
+        .map((r) => ({ front: r.editFront, back: r.editBack }));
+      const res = await fetch("/api/cards/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cards: payload }),
+      });
+      if (!res.ok) {
+        let errorMsg = "Nie udało się zapisać fiszek.";
+        try {
+          const data = (await res.json()) as { error?: string };
+          errorMsg = data.error ?? errorMsg;
+        } catch {
+          // non-JSON error response
+        }
+        setSaveError(errorMsg);
+        return;
+      }
+      window.location.href = "/deck";
+    } catch {
+      setSaveError("Nie udało się połączyć z serwerem.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleSubmit = async (e: { preventDefault(): void }) => {
     e.preventDefault();
     setIsGenerating(true);
     setError(null);
-    setCards([]);
+    setReviews([]);
+    setSaveError(null);
 
     let response: Response;
     try {
@@ -68,7 +116,16 @@ export function GenerateForm() {
               const card = JSON.parse(line) as Record<string, unknown>;
               if (typeof card.front === "string" && typeof card.back === "string") {
                 const newCard: DraftCard = { front: card.front, back: card.back };
-                setCards((prev) => [...prev, newCard]);
+                setReviews((prev) => [
+                  ...prev,
+                  {
+                    front: newCard.front,
+                    back: newCard.back,
+                    status: "pending",
+                    editFront: newCard.front,
+                    editBack: newCard.back,
+                  },
+                ]);
                 cardsEmitted++;
               }
             } catch {
@@ -84,7 +141,16 @@ export function GenerateForm() {
         try {
           const card = JSON.parse(remaining) as Record<string, unknown>;
           if (typeof card.front === "string" && typeof card.back === "string") {
-            setCards((prev) => [...prev, { front: card.front as string, back: card.back as string }]);
+            setReviews((prev) => [
+              ...prev,
+              {
+                front: card.front as string,
+                back: card.back as string,
+                status: "pending",
+                editFront: card.front as string,
+                editBack: card.back as string,
+              },
+            ]);
             cardsEmitted++;
           }
         } catch {
@@ -98,11 +164,17 @@ export function GenerateForm() {
           try {
             const arr = JSON.parse(rawBuffer.trim()) as unknown;
             if (Array.isArray(arr)) {
-              const parsed: DraftCard[] = (arr as Record<string, unknown>[])
+              const parsed = (arr as Record<string, unknown>[])
                 .filter((item) => typeof item.front === "string" && typeof item.back === "string")
-                .map((item) => ({ front: item.front as string, back: item.back as string }));
+                .map((item) => ({
+                  front: item.front as string,
+                  back: item.back as string,
+                  status: "pending",
+                  editFront: item.front as string,
+                  editBack: item.back as string,
+                }));
               if (parsed.length > 0) {
-                setCards(parsed);
+                setReviews(parsed);
               } else {
                 setError("Nie udało się wygenerować fiszek. Spróbuj ponownie.");
               }
@@ -122,6 +194,8 @@ export function GenerateForm() {
       setIsGenerating(false);
     }
   };
+
+  const acceptedCount = reviews.filter((r) => r.status === "accepted").length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -155,15 +229,160 @@ export function GenerateForm() {
         </Button>
       </form>
 
-      {cards.length > 0 && (
-        <ul className="flex flex-col gap-3">
-          {cards.map((card, i) => (
-            <li key={i} className="rounded-lg border border-white/10 bg-white/5 p-4">
-              <p className="text-sm font-semibold text-white">{card.front}</p>
-              <p className="mt-1 text-sm text-blue-100/70">{card.back}</p>
-            </li>
-          ))}
-        </ul>
+      {reviews.length > 0 && (
+        <div className="flex flex-col gap-4">
+          <ul className="flex flex-col gap-3">
+            {reviews.map((review, i) => (
+              <li
+                key={i}
+                className={cn(
+                  "rounded-lg border p-4 transition-opacity",
+                  review.status === "accepted" && "border-emerald-500/50 bg-emerald-950/20",
+                  review.status === "pending" && "border-white/10 bg-white/5",
+                  review.status === "editing" && "border-blue-400/40 bg-blue-950/20",
+                  review.status === "rejected" && "border-white/10 bg-white/5 opacity-50",
+                )}
+              >
+                {review.status === "editing" ? (
+                  <div className="flex flex-col gap-2">
+                    <textarea
+                      value={review.editFront}
+                      onChange={(e) => {
+                        updateReview(i, { editFront: e.target.value });
+                      }}
+                      rows={2}
+                      aria-label="Przód fiszki"
+                      className="w-full resize-none rounded border border-white/20 bg-white/10 p-2 text-sm text-white focus:ring-1 focus:ring-blue-400/50 focus:outline-none"
+                    />
+                    <textarea
+                      value={review.editBack}
+                      onChange={(e) => {
+                        updateReview(i, { editBack: e.target.value });
+                      }}
+                      rows={2}
+                      aria-label="Tył fiszki"
+                      className="w-full resize-none rounded border border-white/20 bg-white/10 p-2 text-sm text-blue-100/70 focus:ring-1 focus:ring-blue-400/50 focus:outline-none"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          updateReview(i, {
+                            status: "accepted",
+                            front: review.editFront,
+                            back: review.editBack,
+                          });
+                        }}
+                      >
+                        Zatwierdź
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => {
+                          updateReview(i, { status: "pending", editFront: review.front, editBack: review.back });
+                        }}
+                      >
+                        Anuluj
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <div>
+                      <p
+                        className={cn(
+                          "text-sm font-semibold text-white",
+                          review.status === "rejected" && "line-through",
+                        )}
+                      >
+                        {review.front}
+                      </p>
+                      <p
+                        className={cn("mt-1 text-sm text-blue-100/70", review.status === "rejected" && "line-through")}
+                      >
+                        {review.back}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      {review.status === "rejected" ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            updateReview(i, { status: "pending" });
+                          }}
+                        >
+                          Przywróć
+                        </Button>
+                      ) : (
+                        <>
+                          {review.status === "pending" && (
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                updateReview(i, { status: "accepted" });
+                              }}
+                            >
+                              Akceptuj
+                            </Button>
+                          )}
+                          {review.status === "accepted" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                updateReview(i, { status: "pending" });
+                              }}
+                            >
+                              Cofnij
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              updateReview(i, { status: "editing" });
+                            }}
+                          >
+                            Edytuj
+                          </Button>
+                          {review.status === "pending" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                updateReview(i, { status: "rejected" });
+                              }}
+                            >
+                              Odrzuć
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <Button
+            onClick={handleSave}
+            disabled={acceptedCount === 0 || isSaving || isGenerating}
+            className="self-start"
+          >
+            {isSaving ? (
+              <span className="flex items-center gap-2">
+                <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                Zapisywanie...
+              </span>
+            ) : (
+              `Zapisz zaakceptowane (${acceptedCount})`
+            )}
+          </Button>
+          <ServerError message={saveError} />
+        </div>
       )}
     </div>
   );

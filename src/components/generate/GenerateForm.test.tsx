@@ -169,3 +169,213 @@ describe("GenerateForm — happy path", () => {
     resolveStream();
   });
 });
+
+// ── per-card review UI ────────────────────────────────────────────────────────
+
+describe("GenerateForm — per-card review UI", () => {
+  it("generated card shows Akceptuj, Edytuj, Odrzuć buttons", async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: /akceptuj/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^edytuj$/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /odrzuć/i })).toBeInTheDocument();
+    });
+  });
+
+  it('"Akceptuj" switches to accepted: shows Cofnij + Edytuj, hides Akceptuj + Odrzuć', async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /akceptuj/i }));
+    await userEvent.click(screen.getByRole("button", { name: /akceptuj/i }));
+    expect(screen.getByRole("button", { name: /cofnij/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /akceptuj/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /odrzuć/i })).not.toBeInTheDocument();
+  });
+
+  it('"Odrzuć" shows Przywróć and hides Akceptuj + Edytuj + Odrzuć', async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /odrzuć/i }));
+    await userEvent.click(screen.getByRole("button", { name: /odrzuć/i }));
+    expect(screen.getByRole("button", { name: /przywróć/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /akceptuj/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /odrzuć/i })).not.toBeInTheDocument();
+  });
+
+  it('"Przywróć" on rejected card returns to pending', async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /odrzuć/i }));
+    await userEvent.click(screen.getByRole("button", { name: /odrzuć/i }));
+    await userEvent.click(screen.getByRole("button", { name: /przywróć/i }));
+    expect(screen.getByRole("button", { name: /akceptuj/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /odrzuć/i })).toBeInTheDocument();
+  });
+
+  it('"Edytuj" shows textareas pre-filled with original front/back', async () => {
+    stubFetchOk([{ front: "Original front", back: "Original back" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /^edytuj$/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^edytuj$/i }));
+    expect(screen.getByLabelText(/przód fiszki/i)).toHaveValue("Original front");
+    expect(screen.getByLabelText(/tył fiszki/i)).toHaveValue("Original back");
+  });
+
+  it('"Anuluj" in edit mode returns to pending state', async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /^edytuj$/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^edytuj$/i }));
+    expect(screen.getByLabelText(/przód fiszki/i)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: /anuluj/i }));
+    expect(screen.queryByLabelText(/przód fiszki/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /akceptuj/i })).toBeInTheDocument();
+  });
+
+  it('"Zatwierdź" in edit mode accepts the card', async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /^edytuj$/i }));
+    await userEvent.click(screen.getByRole("button", { name: /^edytuj$/i }));
+    await userEvent.click(screen.getByRole("button", { name: /zatwierdź/i }));
+    expect(screen.queryByLabelText(/przód fiszki/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /cofnij/i })).toBeInTheDocument();
+  });
+});
+
+// ── save button ───────────────────────────────────────────────────────────────
+
+describe("GenerateForm — save button", () => {
+  it('"Zapisz zaakceptowane" is disabled when 0 cards accepted', async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /akceptuj/i }));
+    expect(screen.getByRole("button", { name: /zapisz zaakceptowane/i })).toBeDisabled();
+  });
+
+  it('"Zapisz zaakceptowane (1)" is enabled after accepting a card', async () => {
+    stubFetchOk([{ front: "Q", back: "A" }]);
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /akceptuj/i }));
+    await userEvent.click(screen.getByRole("button", { name: /akceptuj/i }));
+    expect(screen.getByRole("button", { name: /zapisz zaakceptowane \(1\)/i })).not.toBeDisabled();
+  });
+
+  it("save calls POST /api/cards/save with only accepted cards", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          makeNdjsonStream([
+            { front: "Q1", back: "A1" },
+            { front: "Q2", back: "A2" },
+          ]),
+          { status: 200 },
+        ),
+      )
+      .mockResolvedValueOnce(new Response(JSON.stringify({ saved: 1 }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => {
+      expect(screen.getAllByRole("button", { name: /akceptuj/i })).toHaveLength(2);
+    });
+
+    await userEvent.click(screen.getAllByRole("button", { name: /akceptuj/i })[0]);
+    await userEvent.click(screen.getByRole("button", { name: /zapisz zaakceptowane \(1\)/i }));
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      const [, options] = fetchMock.mock.calls[1] as [string, RequestInit];
+      const body = JSON.parse(options.body as string) as { cards: { front: string; back: string }[] };
+      expect(body.cards).toHaveLength(1);
+      expect(body.cards[0]).toEqual({ front: "Q1", back: "A1" });
+    });
+  });
+
+  it("save with edited card sends editFront/editBack in payload", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(makeNdjsonStream([{ front: "Original", back: "Answer" }]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ saved: 1 }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /^edytuj$/i }));
+
+    await userEvent.click(screen.getByRole("button", { name: /^edytuj$/i }));
+    await userEvent.clear(screen.getByLabelText(/przód fiszki/i));
+    await userEvent.type(screen.getByLabelText(/przód fiszki/i), "Edited front");
+    await userEvent.click(screen.getByRole("button", { name: /zatwierdź/i }));
+    await userEvent.click(screen.getByRole("button", { name: /zapisz zaakceptowane \(1\)/i }));
+
+    await waitFor(() => {
+      const [, options] = fetchMock.mock.calls[1] as [string, RequestInit];
+      const body = JSON.parse(options.body as string) as { cards: { front: string; back: string }[] };
+      expect(body.cards[0].front).toBe("Edited front");
+    });
+  });
+
+  it("save success sets window.location.href to /deck", async () => {
+    const loc = { href: "" };
+    vi.stubGlobal("location", loc);
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(makeNdjsonStream([{ front: "Q", back: "A" }]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ saved: 1 }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /akceptuj/i }));
+    await userEvent.click(screen.getByRole("button", { name: /akceptuj/i }));
+    await userEvent.click(screen.getByRole("button", { name: /zapisz zaakceptowane \(1\)/i }));
+
+    await waitFor(() => {
+      expect(loc.href).toBe("/deck");
+    });
+  });
+
+  it("save error displays error message", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(makeNdjsonStream([{ front: "Q", back: "A" }]), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ error: "DB error" }), { status: 500 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<GenerateForm />);
+    fireEvent.change(screen.getByRole("textbox"), { target: { value: "a".repeat(100) } });
+    await userEvent.click(screen.getByRole("button", { name: /generuj fiszki/i }));
+    await waitFor(() => screen.getByRole("button", { name: /akceptuj/i }));
+    await userEvent.click(screen.getByRole("button", { name: /akceptuj/i }));
+    await userEvent.click(screen.getByRole("button", { name: /zapisz zaakceptowane \(1\)/i }));
+
+    await waitFor(() => {
+      expect(screen.getByText("DB error")).toBeInTheDocument();
+    });
+  });
+});
