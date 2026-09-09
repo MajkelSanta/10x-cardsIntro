@@ -324,10 +324,10 @@ Create `src/pages/deck.astro` (SSR, Supabase query server-side), add `/deck` to 
 ### Phase 3: /deck collection page
 
 #### Automated Verification:
-- [x] 3.1 npm run lint passes
+- [x] 3.1 npm run lint passes — 5dc214f
 
 #### Manual Verification:
-- [x] 3.2 /deck unauthenticated → redirect to /auth/signin
-- [x] 3.3 Full flow: save cards → /deck shows cards with correct count
-- [x] 3.4 Empty state: /deck with no cards shows empty state message
-- [x] 3.5 Dashboard: link to /deck visible and works
+- [x] 3.2 /deck unauthenticated → redirect to /auth/signin — 5dc214f
+- [x] 3.3 Full flow: save cards → /deck shows cards with correct count — 5dc214f
+- [x] 3.4 Empty state: /deck with no cards shows empty state message — 5dc214f
+- [x] 3.5 Dashboard: link to /deck visible and works — 5dc214f
