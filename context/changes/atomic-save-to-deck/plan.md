@@ -306,20 +306,20 @@ Create `src/pages/deck.astro` (SSR, Supabase query server-side), add `/deck` to 
 ### Phase 1: Per-card review UI
 
 #### Automated Verification:
-- [x] 1.1 npm run lint passes
-- [x] 1.2 npm test passes — GenerateForm review UI + save button tests green; 0 regressions
+- [x] 1.1 npm run lint passes — b66c1ff
+- [x] 1.2 npm test passes — GenerateForm review UI + save button tests green; 0 regressions — b66c1ff
 
 #### Manual Verification:
-- [x] 1.3 /generate: per-card buttons work; accept/reject/edit/restore work; save button shows count; save fires POST
+- [x] 1.3 /generate: per-card buttons work; accept/reject/edit/restore work; save button shows count; save fires POST — b66c1ff
 
 ### Phase 2: Save API endpoint
 
 #### Automated Verification:
-- [ ] 2.1 npm run lint passes
-- [ ] 2.2 npm test passes — all 8 save.test.ts cases green; 0 regressions
+- [x] 2.1 npm run lint passes
+- [x] 2.2 npm test passes — all 8 save.test.ts cases green; 0 regressions
 
 #### Manual Verification:
-- [ ] 2.3 POST /api/cards/save authenticated → 200 {saved: N}; unauthenticated → 401
+- [x] 2.3 POST /api/cards/save authenticated → 200 {saved: N}; unauthenticated → 401
 
 ### Phase 3: /deck collection page
 
