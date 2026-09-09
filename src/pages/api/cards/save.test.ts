@@ -57,6 +57,20 @@ describe("POST /api/cards/save — input validation", () => {
     const res = await POST(makeCtx({ body: { cards: [{ front: "Q", back: "  " }] } }) as never);
     expect(res.status).toBe(400);
   });
+
+  it("returns 400 when cards array exceeds 100 items", async () => {
+    const cards = Array.from({ length: 101 }, (_, i) => ({ front: `Q${i}`, back: `A${i}` }));
+    const res = await POST(makeCtx({ body: { cards } }) as never);
+    expect(res.status).toBe(400);
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when a card front exceeds 1000 characters", async () => {
+    const cards = [{ front: "x".repeat(1001), back: "A" }];
+    const res = await POST(makeCtx({ body: { cards } }) as never);
+    expect(res.status).toBe(400);
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
 });
 
 describe("POST /api/cards/save — happy path", () => {

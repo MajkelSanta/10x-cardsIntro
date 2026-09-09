@@ -29,10 +29,23 @@ export const POST: APIRoute = async (context) => {
     });
   }
 
+  if (cards.length > 100) {
+    return new Response(JSON.stringify({ error: "Too many cards (max 100)" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   for (const card of cards) {
     const c = card as { front?: unknown; back?: unknown };
     if (typeof c.front !== "string" || typeof c.back !== "string" || !c.front.trim() || !c.back.trim()) {
       return new Response(JSON.stringify({ error: "Each card must have non-empty front and back" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    if (c.front.trim().length > 1000 || c.back.trim().length > 1000) {
+      return new Response(JSON.stringify({ error: "Card front/back too long (max 1000 characters)" }), {
         status: 400,
         headers: { "Content-Type": "application/json" },
       });

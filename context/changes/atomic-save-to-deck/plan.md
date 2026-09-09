@@ -50,6 +50,7 @@ User can review AI-generated draft cards on `/generate` with per-card accept/edi
 - No confirmation dialog before re-generating over unsaved review state — consistent with S-01 behavior
 - No bulk-accept button — parked per roadmap
 - No card count widget on /dashboard — S-03 scope
+- No pagination / `limit` on the `/deck` query (F5 from impl review) — collection is fetched whole; paging deferred to S-03 when CRUD lands
 
 ---
 
@@ -63,6 +64,8 @@ User can review AI-generated draft cards on `/generate` with per-card accept/edi
 | D4 | `editFront`/`editBack` always initialized from `front`/`back`; save payload always uses them | Uniform access path — whether edited or not |
 | D5 | `/deck.astro` queries Supabase directly server-side (no GET /api/cards endpoint) | Simpler for S-02; S-03 can add the route when CRUD needs it |
 | D6 | POST /api/cards/save rejects empty-string front/back after trim | Defense at API boundary even though UI prevents it |
+| D7 | `Layout.astro` `<html>` gets `class="dark"` app-wide (impl-review F4 addendum) | The whole S-02 UI is styled for dark mode; committed in Phase 1 (b66c1ff) but originally out-of-plan. Recorded here so it is intended scope, not drift. Restyles every existing page (dashboard/auth/generate) — accepted. |
+| D8 | Save endpoint caps at 100 cards/request and 1000 chars/field (impl-review F1+F2) | Bounds the write surface; generator emits ~10 cards, source text is already capped at 5000 chars in `generate.ts`. Both are hard 400s at the API boundary. |
 
 ---
 
@@ -301,6 +304,52 @@ Create `src/pages/deck.astro` (SSR, Supabase query server-side), add `/deck` to 
 
 ---
 
+## Phase 4: Address implementation review findings
+
+### Overview
+
+Remediation phase for the S-02 implementation review (`reviews/impl-review.md`, 2026-09-09). Hardens the save endpoint's write surface (F1, F2), surfaces DB failures on `/deck` instead of masking them as an empty collection (F3), and records the out-of-plan `Layout.astro` dark-mode change as intended scope (F4). Pagination (F5) is explicitly deferred to S-03 — see "What We're NOT Doing".
+
+### Changes Required
+
+**`src/pages/api/cards/save.ts`** — bound the write surface (F1 + D8, F2 + D8)
+
+- **Intent (F1):** reject oversized batches so an authenticated client can't force one huge INSERT.
+- **Contract (F1):** after the existing `!Array.isArray(cards) || cards.length === 0` guard, add a `cards.length > 100` branch returning `400` with `{ error: "Too many cards (max 100)" }`, same response shape as the sibling 400s.
+- **Intent (F2):** cap per-field length so unbounded `text` columns can't store multi-megabyte strings.
+- **Contract (F2):** extend the per-card validation loop (currently the `typeof`/`.trim()` check) so a trimmed `front` or `back` longer than 1000 chars returns `400` `{ error: "Card front/back too long (max 1000 characters)" }`. Keep it in the same loop — one pass, one 400 shape.
+
+**`src/pages/deck.astro`** — stop masking query failures (F3)
+
+- **Intent:** distinguish a real DB/network error from a genuinely empty collection instead of silently rendering the empty state.
+- **Contract:** destructure `error` alongside `data` from the Supabase query (currently only `{ data: cards }` at line 8). When `error` is truthy, render a distinct error state (e.g. "Nie udało się wczytać kolekcji. Spróbuj ponownie.") rather than the "Nie masz jeszcze żadnych fiszek" empty state. The empty state stays reserved for `error == null && cards.length === 0`.
+
+**`src/pages/api/cards/save.test.ts`** — cover the new guards
+
+- **Intent:** lock in the two new 400 branches so they don't regress.
+- **Contract:** add two cases following the existing mock pattern — (a) a `cards` array of length 101 → `400`; (b) a card whose `front` (or `back`) exceeds 1000 chars → `400`. Assert Supabase `.insert()` is **not** called in either case.
+
+**`context/changes/atomic-save-to-deck/plan.md`** — F4 addendum (this file)
+
+- **Intent:** record the Phase-1 `Layout.astro` `class="dark"` change as intended scope, not drift.
+- **Contract:** captured as decision **D7** above — no code change; documentation only.
+
+### Success Criteria
+
+#### Automated Verification:
+
+- `npm run lint` passes (save.ts, deck.astro, save.test.ts)
+- `npm test` passes — new save.test.ts cap + length cases green; 0 regressions in existing 46 tests
+
+#### Manual Verification:
+
+- POST /api/cards/save with 101 cards → 400; with a >1000-char front → 400 (no row written)
+- Simulated deck query failure renders the error state, not the empty-collection message; a real empty collection still shows the empty state
+
+**Implementation Note**: After automated verification passes, pause for manual confirmation before considering the phase done.
+
+---
+
 ## Progress
 
 ### Phase 1: Per-card review UI
@@ -331,3 +380,15 @@ Create `src/pages/deck.astro` (SSR, Supabase query server-side), add `/deck` to 
 - [x] 3.3 Full flow: save cards → /deck shows cards with correct count — 5dc214f
 - [x] 3.4 Empty state: /deck with no cards shows empty state message — 5dc214f
 - [x] 3.5 Dashboard: link to /deck visible and works — 5dc214f
+
+### Phase 4: Address implementation review findings
+
+#### Automated Verification:
+
+- [x] 4.1 npm run lint passes (save.ts, deck.astro, save.test.ts)
+- [x] 4.2 npm test passes — new save.test.ts cap + length cases green; 0 regressions
+
+#### Manual Verification:
+
+- [ ] 4.3 POST 101 cards → 400; POST card with >1000-char field → 400 (no row written)
+- [ ] 4.4 deck.astro query failure renders error state (not empty-collection message)

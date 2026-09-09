@@ -5,14 +5,14 @@ import { createClient } from "@/lib/supabase";
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const user = Astro.locals.user;
 
-const { data: cards } =
+const { data: cards, error: cardsError } =
   supabase && user
     ? await supabase
         .from("flashcards")
         .select("id, front, back")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
-    : { data: [] };
+    : { data: [], error: null };
 ---
 
 <Layout title="Twoja kolekcja">
@@ -26,7 +26,9 @@ const { data: cards } =
       </div>
 
       {
-        !cards || cards.length === 0 ? (
+        cardsError ? (
+          <p class="text-center text-red-400">Nie udało się wczytać kolekcji. Spróbuj ponownie.</p>
+        ) : cards.length === 0 ? (
           <p class="text-center text-blue-100/60">Nie masz jeszcze żadnych fiszek. Wróć do generowania!</p>
         ) : (
           <ul class="flex flex-col gap-3">

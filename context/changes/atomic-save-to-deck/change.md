@@ -1,7 +1,7 @@
 ---
 change_id: atomic-save-to-deck
 title: Atomic save to deck
-status: implemented
+status: planned
 created: 2026-09-09
 updated: 2026-09-09
 archived_at: null
