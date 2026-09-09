@@ -45,10 +45,10 @@ The product wedge — the one trait that, if removed, makes 10xCards indistingui
 | ---- | ------------------------------- | ----------------------------------------------------------------------------------- | ------------- | -------------------------------------- | -------- |
 | F-01 | flashcard-schema-migration      | (foundation) flashcard table with SR algorithm fields deployed; RLS enabled         | —             | FR-002, FR-004, FR-008, FR-009, FR-010 | done     |
 | S-01 | first-gated-generation          | paste text → AI generates → sees draft candidate cards (not yet saved to deck)      | F-01          | FR-001, FR-002, US-01                  | done        |
-| S-02 | atomic-save-to-deck             | review each draft card, accept/edit/reject; accepted cards atomically saved to deck | S-01          | FR-003, FR-005, US-01                  | proposed |
+| S-02 | atomic-save-to-deck             | review each draft card, accept/edit/reject; accepted cards atomically saved to deck | S-01          | FR-003, FR-005, US-01                  | ready    |
 | S-03 | flashcard-crud-management       | create cards manually, edit and delete existing cards                               | S-02          | FR-004, FR-006, FR-007, US-02          | proposed |
 | S-04 | srs-review-session              | start an SR review session with due cards and rate their recall                     | S-02          | FR-008, FR-009, US-03                  | proposed |
-| S-05 | account-deletion-with-retention | request account deletion with 30-day data retention before permanent removal        | F-01          | FR-010, US-04                          | proposed |
+| S-05 | account-deletion-with-retention | request account deletion with 30-day data retention before permanent removal        | F-01          | FR-010, US-04                          | ready    |
 
 ## Streams
 
@@ -113,7 +113,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** The atomicity requirement (all accepted cards save or none do) must be verified: if the transaction fails mid-save, no partial state should persist. This is the integrity guarantee of the product wedge — a partial save would undermine the explicit-gate contract.
-- **Status:** proposed
+- **Status:** ready
 
 ### S-03: Flashcard CRUD Management
 
@@ -151,7 +151,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Unknowns:**
   - What mechanism implements the 30-day soft-delete (a `deleted_at` column on user record, a Supabase scheduled job, or TTL policy). — Owner: user. Block: no (implementation detail for `/10x-plan`).
 - **Risk:** Must ensure that a user who has requested deletion cannot log in or access data during the retention window. Auth layer enforcement is required and must be verified before the slice is marked done.
-- **Status:** proposed
+- **Status:** ready
 
 ## Backlog Handoff
 
@@ -159,10 +159,10 @@ Foundations below assume these are present and do NOT re-scaffold them.
 | ---------- | ------------------------------- | ------------------------------------------------------------------------------------- | --------------------- | ----------------------------------------------- |
 | F-01       | flashcard-schema-migration      | [#1](https://github.com/MajkelSanta/10x-cardsIntro/issues/1)                         | yes                   | SR library resolved (FSRS / ts-fsrs)            |
 | S-01       | first-gated-generation          | [#2](https://github.com/MajkelSanta/10x-cardsIntro/issues/2)                         | no                    | Depends on F-01 done                            |
-| S-02       | atomic-save-to-deck             | [#3](https://github.com/MajkelSanta/10x-cardsIntro/issues/3)                         | no                    | Depends on S-01 done                            |
+| S-02       | atomic-save-to-deck             | [#3](https://github.com/MajkelSanta/10x-cardsIntro/issues/3)                         | yes                   | S-01 done — run `/10x-plan atomic-save-to-deck` |
 | S-03       | flashcard-crud-management       | [#4](https://github.com/MajkelSanta/10x-cardsIntro/issues/4)                         | no                    | Depends on S-02; parallel with S-04 after S-02  |
 | S-04       | srs-review-session              | [#5](https://github.com/MajkelSanta/10x-cardsIntro/issues/5)                         | no                    | Depends on S-02; parallel with S-03 after S-02  |
-| S-05       | account-deletion-with-retention | [#6](https://github.com/MajkelSanta/10x-cardsIntro/issues/6)                         | no                    | Depends on F-01; parallel with S-01 after F-01  |
+| S-05       | account-deletion-with-retention | [#6](https://github.com/MajkelSanta/10x-cardsIntro/issues/6)                         | yes                   | F-01 done — parallel with S-02                  |
 
 ## Open Roadmap Questions
 
