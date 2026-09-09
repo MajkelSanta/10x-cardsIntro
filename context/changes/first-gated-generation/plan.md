@@ -326,26 +326,26 @@ NFR wymaga "ciągłego widocznego postępu" dla operacji przekraczających 2 sek
 
 #### Automated
 
-- [x] 2.1 `npm run build` kończy się sukcesem
-- [x] 2.2 `npm run lint` przechodzi bez błędów
+- [x] 2.1 `npm run build` kończy się sukcesem — a728ad1
+- [x] 2.2 `npm run lint` przechodzi bez błędów — a728ad1
 
 #### Manual
 
-- [x] 2.3 Streaming POST do `/api/cards/generate` zwraca fiszki jako NDJSON
-- [x] 2.4 Niezalogowany POST zwraca 401
-- [x] 2.5 POST z tekstem < 50 znaków zwraca 400
-- [x] 2.6 POST z tekstem > 5000 znaków zwraca 400
+- [x] 2.3 Streaming POST do `/api/cards/generate` zwraca fiszki jako NDJSON — a728ad1
+- [x] 2.4 Niezalogowany POST zwraca 401 — a728ad1
+- [x] 2.5 POST z tekstem < 50 znaków zwraca 400 — a728ad1
+- [x] 2.6 POST z tekstem > 5000 znaków zwraca 400 — a728ad1
 
 ### Phase 3: Generation Page UI
 
 #### Automated
 
-- [ ] 3.1 `npm run build` kończy się sukcesem
-- [ ] 3.2 `npm run lint` przechodzi bez błędów
+- [x] 3.1 `npm run build` kończy się sukcesem
+- [x] 3.2 `npm run lint` przechodzi bez błędów
 
 #### Manual
 
-- [ ] 3.3 Dashboard pokazuje link "Generuj fiszki"
-- [ ] 3.4 Nawigacja do `/generate`, wklejenie tekstu → 10 fiszek strumieniuje stopniowo
-- [ ] 3.5 Walidacja znaków działa (< 50 zablokowane, > 5000 zablokowane)
-- [ ] 3.6 Wylogowany → `/generate` przekierowuje do `/auth/signin`
+- [x] 3.3 Dashboard pokazuje link "Generuj fiszki"
+- [x] 3.4 Nawigacja do `/generate`, wklejenie tekstu → 10 fiszek strumieniuje stopniowo
+- [x] 3.5 Walidacja znaków działa (< 50 zablokowane, > 5000 zablokowane)
+- [x] 3.6 Wylogowany → `/generate` przekierowuje do `/auth/signin`
