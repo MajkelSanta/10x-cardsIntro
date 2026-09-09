@@ -1,0 +1,44 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { createClient } from "@/lib/supabase";
+
+const supabase = createClient(Astro.request.headers, Astro.cookies);
+const user = Astro.locals.user;
+
+const { data: cards } =
+  supabase && user
+    ? await supabase
+        .from("flashcards")
+        .select("id, front, back")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+    : { data: [] };
+---
+
+<Layout title="Twoja kolekcja">
+  <div class="bg-cosmic min-h-screen p-6">
+    <div class="mx-auto max-w-2xl">
+      <div class="mb-6 flex items-center justify-between">
+        <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
+          Twoja kolekcja ({cards?.length ?? 0} fiszek)
+        </h1>
+        <a href="/generate" class="text-sm text-blue-300 hover:underline">← Generuj więcej</a>
+      </div>
+
+      {
+        !cards || cards.length === 0 ? (
+          <p class="text-center text-blue-100/60">Nie masz jeszcze żadnych fiszek. Wróć do generowania!</p>
+        ) : (
+          <ul class="flex flex-col gap-3">
+            {cards.map((card) => (
+              <li class="rounded-lg border border-white/10 bg-white/5 p-4">
+                <p class="font-semibold text-white">{card.front}</p>
+                <p class="mt-1 text-sm text-blue-100/60">{card.back}</p>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </div>
+</Layout>

@@ -12,8 +12,8 @@ const { mockInsert, createClientMock } = vi.hoisted(() => {
 vi.mock("@/lib/supabase", () => ({ createClient: createClientMock }));
 
 function makeCtx({
-  user = { id: "user-1", email: "test@example.com" } as { id: string; email: string } | null,
-  body = { cards: [{ front: "Q1", back: "A1" }] } as unknown,
+  user = { id: "user-1", email: "test@example.com" },
+  body = { cards: [{ front: "Q1", back: "A1" }] },
 } = {}) {
   return {
     locals: { user },

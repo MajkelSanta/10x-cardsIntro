@@ -315,19 +315,19 @@ Create `src/pages/deck.astro` (SSR, Supabase query server-side), add `/deck` to 
 ### Phase 2: Save API endpoint
 
 #### Automated Verification:
-- [x] 2.1 npm run lint passes
-- [x] 2.2 npm test passes — all 8 save.test.ts cases green; 0 regressions
+- [x] 2.1 npm run lint passes — 20e62cf
+- [x] 2.2 npm test passes — all 8 save.test.ts cases green; 0 regressions — 20e62cf
 
 #### Manual Verification:
-- [x] 2.3 POST /api/cards/save authenticated → 200 {saved: N}; unauthenticated → 401
+- [x] 2.3 POST /api/cards/save authenticated → 200 {saved: N}; unauthenticated → 401 — 20e62cf
 
 ### Phase 3: /deck collection page
 
 #### Automated Verification:
-- [ ] 3.1 npm run lint passes
+- [x] 3.1 npm run lint passes
 
 #### Manual Verification:
-- [ ] 3.2 /deck unauthenticated → redirect to /auth/signin
-- [ ] 3.3 Full flow: save cards → /deck shows cards with correct count
-- [ ] 3.4 Empty state: /deck with no cards shows empty state message
-- [ ] 3.5 Dashboard: link to /deck visible and works
+- [x] 3.2 /deck unauthenticated → redirect to /auth/signin
+- [x] 3.3 Full flow: save cards → /deck shows cards with correct count
+- [x] 3.4 Empty state: /deck with no cards shows empty state message
+- [x] 3.5 Dashboard: link to /deck visible and works
