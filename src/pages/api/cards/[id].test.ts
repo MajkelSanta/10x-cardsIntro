@@ -164,6 +164,15 @@ describe("PUT /api/cards/[id] — not found", () => {
   });
 });
 
+describe("PUT /api/cards/[id] — service unavailable", () => {
+  it("returns 503 when createClient returns null", async () => {
+    createClientMock.mockReturnValueOnce(null);
+    const res = await PUT(makePutCtx() as never);
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "Service unavailable" });
+  });
+});
+
 describe("PUT /api/cards/[id] — database error", () => {
   it("returns 500 when supabase update returns an error", async () => {
     mockSelectUpdate.mockResolvedValue({ data: null, error: { message: "db error" } });
@@ -222,6 +231,15 @@ describe("DELETE /api/cards/[id] — not found", () => {
     const res = await DELETE(makeDeleteCtx() as never);
     expect(res.status).toBe(404);
     expect(await res.json()).toEqual({ error: "Card not found" });
+  });
+});
+
+describe("DELETE /api/cards/[id] — service unavailable", () => {
+  it("returns 503 when createClient returns null", async () => {
+    createClientMock.mockReturnValueOnce(null);
+    const res = await DELETE(makeDeleteCtx() as never);
+    expect(res.status).toBe(503);
+    expect(await res.json()).toEqual({ error: "Service unavailable" });
   });
 });
 

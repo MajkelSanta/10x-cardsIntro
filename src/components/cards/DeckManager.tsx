@@ -152,11 +152,14 @@ export function DeckManager({ cards: initialCards }: Props) {
               <div className="flex flex-col gap-2">
                 <p className={cn("font-semibold text-white line-through")}>{card.front}</p>
                 <p className="mt-1 text-sm text-blue-100/60 line-through">{card.back}</p>
-                <p className="text-sm text-red-400">Czy na pewno chcesz usunąć tę fiszkę?</p>
+                <p role="alert" className="text-sm text-red-400">
+                  Czy na pewno chcesz usunąć tę fiszkę?
+                </p>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
                     variant="destructive"
+                    aria-label="Potwierdź usunięcie fiszki"
                     onClick={() => {
                       void handleDelete(card);
                     }}

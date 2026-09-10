@@ -131,7 +131,7 @@ export const DELETE: APIRoute = async (context) => {
     });
   }
 
-  if (count === 0) {
+  if (!count) {
     return new Response(JSON.stringify({ error: "Card not found" }), {
       status: 404,
       headers: { "Content-Type": "application/json" },

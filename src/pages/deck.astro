@@ -6,14 +6,20 @@ import { DeckManager } from "@/components/cards/DeckManager";
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const user = Astro.locals.user;
 
-const { data: cards, error: cardsError } =
-  supabase && user
-    ? await supabase
-        .from("flashcards")
-        .select("id, front, back")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-    : { data: [], error: null };
+let cards: { id: string; front: string; back: string }[] = [];
+let cardsError = false;
+
+if (!supabase) {
+  cardsError = true;
+} else if (user) {
+  const { data, error } = await supabase
+    .from("flashcards")
+    .select("id, front, back")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+  cards = data ?? [];
+  cardsError = !!error;
+}
 ---
 
 <Layout title="Twoja kolekcja">
