@@ -1,6 +1,7 @@
 ---
 import Layout from "@/layouts/Layout.astro";
 import { createClient } from "@/lib/supabase";
+import { DeckManager } from "@/components/cards/DeckManager";
 
 const supabase = createClient(Astro.request.headers, Astro.cookies);
 const user = Astro.locals.user;
@@ -20,7 +21,7 @@ const { data: cards, error: cardsError } =
     <div class="mx-auto max-w-2xl">
       <div class="mb-6 flex items-center justify-between">
         <h1 class="bg-gradient-to-r from-blue-200 to-purple-200 bg-clip-text text-2xl font-bold text-transparent">
-          Twoja kolekcja ({cards?.length ?? 0} fiszek)
+          Twoja kolekcja
         </h1>
         <a href="/generate" class="text-sm text-blue-300 hover:underline">← Generuj więcej</a>
       </div>
@@ -28,17 +29,8 @@ const { data: cards, error: cardsError } =
       {
         cardsError ? (
           <p class="text-center text-red-400">Nie udało się wczytać kolekcji. Spróbuj ponownie.</p>
-        ) : cards.length === 0 ? (
-          <p class="text-center text-blue-100/60">Nie masz jeszcze żadnych fiszek. Wróć do generowania!</p>
         ) : (
-          <ul class="flex flex-col gap-3">
-            {cards.map((card) => (
-              <li class="rounded-lg border border-white/10 bg-white/5 p-4">
-                <p class="font-semibold text-white">{card.front}</p>
-                <p class="mt-1 text-sm text-blue-100/60">{card.back}</p>
-              </li>
-            ))}
-          </ul>
+          <DeckManager cards={cards} client:load />
         )
       }
     </div>

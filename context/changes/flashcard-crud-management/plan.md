@@ -265,31 +265,31 @@ Converts the static card list in `/deck` to a `DeckManager` React island that re
 
 #### Automated
 
-- [x] 2.1 TypeScript compiles without errors
-- [x] 2.2 Lint passes
+- [x] 2.1 TypeScript compiles without errors — 70309f3
+- [x] 2.2 Lint passes — 70309f3
 
 #### Manual
 
-- [x] 2.3 Dashboard shows create form below existing links
-- [x] 2.4 Valid submission creates card and redirects to `/deck` with new card visible
-- [x] 2.5 Empty field keeps submit button disabled
-- [x] 2.6 Over-1000-char input keeps submit button disabled
-- [x] 2.7 Network failure shows inline error message
+- [x] 2.3 Dashboard shows create form below existing links — 70309f3
+- [x] 2.4 Valid submission creates card and redirects to `/deck` with new card visible — 70309f3
+- [x] 2.5 Empty field keeps submit button disabled — 70309f3
+- [x] 2.6 Over-1000-char input keeps submit button disabled — 70309f3
+- [x] 2.7 Network failure shows inline error message — 70309f3
 
 ### Phase 3: DeckManager Island + /deck Integration
 
 #### Automated
 
-- [ ] 3.1 TypeScript compiles without errors
-- [ ] 3.2 Lint passes
+- [x] 3.1 TypeScript compiles without errors
+- [x] 3.2 Lint passes
 
 #### Manual
 
-- [ ] 3.3 `/deck` shows Edytuj + Usuń on each card
-- [ ] 3.4 Edit inline saves and collapses with updated text
-- [ ] 3.5 Cancel edit restores original text without API call
-- [ ] 3.6 Delete confirm removes card from list and Supabase
-- [ ] 3.7 Cancel delete leaves card intact
-- [ ] 3.8 Offline rollback on edit shows error and restores text
-- [ ] 3.9 Offline rollback on delete shows error and restores card
-- [ ] 3.10 Empty collection shows empty-state message
+- [x] 3.3 `/deck` shows Edytuj + Usuń on each card
+- [x] 3.4 Edit inline saves and collapses with updated text
+- [x] 3.5 Cancel edit restores original text without API call
+- [x] 3.6 Delete confirm removes card from list and Supabase
+- [x] 3.7 Cancel delete leaves card intact
+- [x] 3.8 Offline rollback on edit shows error and restores text
+- [x] 3.9 Offline rollback on delete shows error and restores card
+- [x] 3.10 Empty collection shows empty-state message
