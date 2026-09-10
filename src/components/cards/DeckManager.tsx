@@ -17,6 +17,7 @@ interface CardState extends Card {
   editFront: string;
   editBack: string;
   error: string | null;
+  isSubmitting: boolean;
 }
 
 interface Props {
@@ -24,7 +25,14 @@ interface Props {
 }
 
 function toState(cards: Card[]): CardState[] {
-  return cards.map((c) => ({ ...c, mode: "display", editFront: c.front, editBack: c.back, error: null }));
+  return cards.map((c) => ({
+    ...c,
+    mode: "display",
+    editFront: c.front,
+    editBack: c.back,
+    error: null,
+    isSubmitting: false,
+  }));
 }
 
 export function DeckManager({ cards: initialCards }: Props) {
@@ -35,7 +43,7 @@ export function DeckManager({ cards: initialCards }: Props) {
   };
 
   const handleSaveEdit = async (id: string, newFront: string, newBack: string, prevFront: string, prevBack: string) => {
-    updateCard(id, { front: newFront, back: newBack, mode: "display", error: null });
+    updateCard(id, { front: newFront, back: newBack, mode: "display", isSubmitting: true, error: null });
     try {
       const res = await fetch(`/api/cards/${id}`, {
         method: "PUT",
@@ -50,14 +58,21 @@ export function DeckManager({ cards: initialCards }: Props) {
         } catch {
           // non-JSON
         }
-        updateCard(id, { front: prevFront, back: prevBack, error: msg });
+        updateCard(id, { front: prevFront, back: prevBack, isSubmitting: false, error: msg });
+      } else {
+        updateCard(id, { isSubmitting: false });
       }
     } catch {
-      updateCard(id, { front: prevFront, back: prevBack, error: "Nie udało się połączyć z serwerem." });
+      updateCard(id, {
+        front: prevFront,
+        back: prevBack,
+        isSubmitting: false,
+        error: "Nie udało się połączyć z serwerem.",
+      });
     }
   };
 
-  const handleDelete = async (card: CardState, cardIndex: number) => {
+  const handleDelete = async (card: CardState) => {
     setCardStates((prev) => prev.filter((c) => c.id !== card.id));
     try {
       const res = await fetch(`/api/cards/${card.id}`, { method: "DELETE" });
@@ -69,18 +84,10 @@ export function DeckManager({ cards: initialCards }: Props) {
         } catch {
           // non-JSON
         }
-        setCardStates((prev) => {
-          const next = [...prev];
-          next.splice(cardIndex, 0, { ...card, mode: "display", error: msg });
-          return next;
-        });
+        setCardStates((prev) => [...prev, { ...card, mode: "display", error: msg }]);
       }
     } catch {
-      setCardStates((prev) => {
-        const next = [...prev];
-        next.splice(cardIndex, 0, { ...card, mode: "display", error: "Nie udało się połączyć z serwerem." });
-        return next;
-      });
+      setCardStates((prev) => [...prev, { ...card, mode: "display", error: "Nie udało się połączyć z serwerem." }]);
     }
   };
 
@@ -92,7 +99,7 @@ export function DeckManager({ cards: initialCards }: Props) {
     <>
       <p className="mb-4 text-sm text-blue-100/60">{cardStates.length} fiszek</p>
       <ul className="flex flex-col gap-3">
-        {cardStates.map((card, index) => (
+        {cardStates.map((card) => (
           <li key={card.id} className="rounded-lg border border-white/10 bg-white/5 p-4">
             {card.mode === "editing" ? (
               <div className="flex flex-col gap-2">
@@ -121,7 +128,8 @@ export function DeckManager({ cards: initialCards }: Props) {
                       !card.editFront.trim() ||
                       card.editFront.trim().length > 1000 ||
                       !card.editBack.trim() ||
-                      card.editBack.trim().length > 1000
+                      card.editBack.trim().length > 1000 ||
+                      card.isSubmitting
                     }
                     onClick={() => {
                       void handleSaveEdit(card.id, card.editFront.trim(), card.editBack.trim(), card.front, card.back);
@@ -150,7 +158,7 @@ export function DeckManager({ cards: initialCards }: Props) {
                     size="sm"
                     variant="destructive"
                     onClick={() => {
-                      void handleDelete(card, index);
+                      void handleDelete(card);
                     }}
                   >
                     Potwierdź
@@ -177,7 +185,7 @@ export function DeckManager({ cards: initialCards }: Props) {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      updateCard(card.id, { mode: "editing" });
+                      updateCard(card.id, { mode: "editing", error: null });
                     }}
                   >
                     Edytuj
@@ -186,7 +194,7 @@ export function DeckManager({ cards: initialCards }: Props) {
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      updateCard(card.id, { mode: "confirming-delete" });
+                      updateCard(card.id, { mode: "confirming-delete", error: null });
                     }}
                   >
                     Usuń

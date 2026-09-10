@@ -17,6 +17,12 @@ export const PUT: APIRoute = async (context) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return new Response(JSON.stringify({ error: "Invalid card id" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   let body: { front?: unknown; back?: unknown };
   try {
@@ -50,7 +56,7 @@ export const PUT: APIRoute = async (context) => {
     });
   }
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("flashcards")
     .update({
       front: front.trim(),
@@ -58,11 +64,19 @@ export const PUT: APIRoute = async (context) => {
       updated_at: new Date().toISOString(),
     })
     .eq("id", id)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("id");
 
   if (error) {
     return new Response(JSON.stringify({ error: "Failed to update card" }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (data.length === 0) {
+    return new Response(JSON.stringify({ error: "Card not found" }), {
+      status: 404,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -89,6 +103,12 @@ export const DELETE: APIRoute = async (context) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return new Response(JSON.stringify({ error: "Invalid card id" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   const supabase = createClient(context.request.headers, context.cookies);
   if (!supabase) {
@@ -98,11 +118,22 @@ export const DELETE: APIRoute = async (context) => {
     });
   }
 
-  const { error } = await supabase.from("flashcards").delete().eq("id", id).eq("user_id", user.id);
+  const { error, count } = await supabase
+    .from("flashcards")
+    .delete({ count: "exact" })
+    .eq("id", id)
+    .eq("user_id", user.id);
 
   if (error) {
     return new Response(JSON.stringify({ error: "Failed to delete card" }), {
       status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (count === 0) {
+    return new Response(JSON.stringify({ error: "Card not found" }), {
+      status: 404,
       headers: { "Content-Type": "application/json" },
     });
   }

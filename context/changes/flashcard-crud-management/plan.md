@@ -37,6 +37,10 @@ Dashboard has a "Utwórz fiszkę ręcznie" form (two `textarea` fields for front
 - No card search, filter, or pagination — full list, MVP.
 - No React component unit tests — API endpoint tests are sufficient automated coverage for this slice.
 
+## Addendum
+
+- `src/pages/generate.astro` — added `← Dashboard` navigation link during Phase 3 (unplanned UX improvement; no logic or dependency changes).
+
 ## Implementation Approach
 
 API layer first (Phase 1) so the new endpoints exist before the UI tries to call them. Then the create form (Phase 2) which is self-contained on the dashboard. Finally the deck management island (Phase 3) which calls the Phase 1 endpoints.
