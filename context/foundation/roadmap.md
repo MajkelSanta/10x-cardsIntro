@@ -46,7 +46,7 @@ The product wedge — the one trait that, if removed, makes 10xCards indistingui
 | F-01 | flashcard-schema-migration      | (foundation) flashcard table with SR algorithm fields deployed; RLS enabled         | —             | FR-002, FR-004, FR-008, FR-009, FR-010 | done     |
 | S-01 | first-gated-generation          | paste text → AI generates → sees draft candidate cards (not yet saved to deck)      | F-01          | FR-001, FR-002, US-01                  | done        |
 | S-02 | atomic-save-to-deck             | review each draft card, accept/edit/reject; accepted cards atomically saved to deck | S-01          | FR-003, FR-005, US-01                  | done        |
-| S-03 | flashcard-crud-management       | create cards manually, edit and delete existing cards                               | S-02          | FR-004, FR-006, FR-007, US-02          | proposed |
+| S-03 | flashcard-crud-management       | create cards manually, edit and delete existing cards                               | S-02          | FR-004, FR-006, FR-007, US-02          | done        |
 | S-04 | srs-review-session              | start an SR review session with due cards and rate their recall                     | S-02          | FR-008, FR-009, US-03                  | proposed |
 | S-05 | account-deletion-with-retention | request account deletion with 30-day data retention before permanent removal        | F-01          | FR-010, US-04                          | ready    |
 
@@ -125,7 +125,7 @@ Foundations below assume these are present and do NOT re-scaffold them.
 - **Blockers:** —
 - **Unknowns:** —
 - **Risk:** Depends on the collection view built in S-02; any structural UI change in S-02 may require minor rework here. Low risk given the collection view is intentionally simple.
-- **Status:** proposed
+- **Status:** done
 
 ### S-04: Spaced-Repetition Review Session
 
@@ -183,4 +183,4 @@ Foundations below assume these are present and do NOT re-scaffold them.
 
 ## Done
 
-(Empty — `/10x-archive` appends entries here when changes are archived.)
+- **S-03: Flashcard CRUD Management** — Archived 2026-09-10 → `context/archive/2026-09-10-flashcard-crud-management/`. Lesson: —.
