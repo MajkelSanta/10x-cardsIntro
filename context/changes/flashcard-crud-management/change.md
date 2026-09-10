@@ -1,7 +1,7 @@
 ---
 change_id: flashcard-crud-management
 title: Flashcard CRUD Management
-status: implementing
+status: implemented
 created: 2026-09-10
 updated: 2026-09-10
 archived_at: null

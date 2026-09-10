@@ -280,16 +280,16 @@ Converts the static card list in `/deck` to a `DeckManager` React island that re
 
 #### Automated
 
-- [x] 3.1 TypeScript compiles without errors
-- [x] 3.2 Lint passes
+- [x] 3.1 TypeScript compiles without errors — d361b03
+- [x] 3.2 Lint passes — d361b03
 
 #### Manual
 
-- [x] 3.3 `/deck` shows Edytuj + Usuń on each card
-- [x] 3.4 Edit inline saves and collapses with updated text
-- [x] 3.5 Cancel edit restores original text without API call
-- [x] 3.6 Delete confirm removes card from list and Supabase
-- [x] 3.7 Cancel delete leaves card intact
-- [x] 3.8 Offline rollback on edit shows error and restores text
-- [x] 3.9 Offline rollback on delete shows error and restores card
-- [x] 3.10 Empty collection shows empty-state message
+- [x] 3.3 `/deck` shows Edytuj + Usuń on each card — d361b03
+- [x] 3.4 Edit inline saves and collapses with updated text — d361b03
+- [x] 3.5 Cancel edit restores original text without API call — d361b03
+- [x] 3.6 Delete confirm removes card from list and Supabase — d361b03
+- [x] 3.7 Cancel delete leaves card intact — d361b03
+- [x] 3.8 Offline rollback on edit shows error and restores text — d361b03
+- [x] 3.9 Offline rollback on delete shows error and restores card — d361b03
+- [x] 3.10 Empty collection shows empty-state message — d361b03
