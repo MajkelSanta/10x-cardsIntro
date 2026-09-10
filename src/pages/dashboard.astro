@@ -1,5 +1,6 @@
 ---
 import Layout from "@/layouts/Layout.astro";
+import { CreateCardForm } from "@/components/cards/CreateCardForm";
 
 const { user } = Astro.locals;
 ---
@@ -28,6 +29,7 @@ const { user } = Astro.locals;
           Przeglądaj kolekcję →
         </a>
       </div>
+      <CreateCardForm client:load />
       <form method="POST" action="/api/auth/signout" class="mt-3">
         <button
           type="submit"

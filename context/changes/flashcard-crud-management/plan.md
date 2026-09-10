@@ -251,30 +251,30 @@ Converts the static card list in `/deck` to a `DeckManager` React island that re
 
 #### Automated
 
-- [x] 1.1 All tests in `[id].test.ts` pass
-- [x] 1.2 TypeScript compiles without errors
-- [x] 1.3 Lint passes
+- [x] 1.1 All tests in `[id].test.ts` pass — 781c7e5
+- [x] 1.2 TypeScript compiles without errors — 781c7e5
+- [x] 1.3 Lint passes — 781c7e5
 
 #### Manual
 
-- [x] 1.4 PUT endpoint updates card in Supabase with valid session
-- [x] 1.5 DELETE endpoint removes card from Supabase with valid session
-- [x] 1.6 Both endpoints return 401 without a valid session cookie
+- [x] 1.4 PUT endpoint updates card in Supabase with valid session — 781c7e5
+- [x] 1.5 DELETE endpoint removes card from Supabase with valid session — 781c7e5
+- [x] 1.6 Both endpoints return 401 without a valid session cookie — 781c7e5
 
 ### Phase 2: CreateCardForm Island + Dashboard Integration
 
 #### Automated
 
-- [ ] 2.1 TypeScript compiles without errors
-- [ ] 2.2 Lint passes
+- [x] 2.1 TypeScript compiles without errors
+- [x] 2.2 Lint passes
 
 #### Manual
 
-- [ ] 2.3 Dashboard shows create form below existing links
-- [ ] 2.4 Valid submission creates card and redirects to `/deck` with new card visible
-- [ ] 2.5 Empty field keeps submit button disabled
-- [ ] 2.6 Over-1000-char input keeps submit button disabled
-- [ ] 2.7 Network failure shows inline error message
+- [x] 2.3 Dashboard shows create form below existing links
+- [x] 2.4 Valid submission creates card and redirects to `/deck` with new card visible
+- [x] 2.5 Empty field keeps submit button disabled
+- [x] 2.6 Over-1000-char input keeps submit button disabled
+- [x] 2.7 Network failure shows inline error message
 
 ### Phase 3: DeckManager Island + /deck Integration
 
